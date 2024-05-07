@@ -2,6 +2,7 @@ import {
     Autocomplete,
     AutocompleteItem,
     Button,
+    DatePicker,
     Input,
     Modal,
     ModalBody,
@@ -32,9 +33,10 @@ import { useTransactions } from "../../hooks/useTransactions";
 import { inputStyle, modalStyle, scrollShadowProps } from "../style.js";
 import { useExchangeRates } from "../../hooks/useExchangeRates.js";
 import { useTags } from "../../hooks/useTags.js";
+import { useCounterparties } from "../../hooks/useCounterparties.js";
 
 export default function Transaction({ isOpen, onOpenChange, formEntity }) {
-    const counterparties = { items: [{ key: "Countdown", Name: "Countdown" }] };
+    const counterparties = useCounterparties();
     const tags = useTags();
     const transactions = useTransactions();
     const exchangeRates = useExchangeRates();
@@ -91,85 +93,87 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                         <ModalHeader>{"Create New Transaction"}</ModalHeader>
                         <ScrollShadow {...scrollShadowProps}>
                             <ModalBody>
-                                <Popover isOpen={isCalendarOpen} onOpenChange={(open) => _isCalendarOpen(open)}>
-                                    <PopoverTrigger>
-                                        <Input
-                                            aria-label="Date"
-                                            label="Date"
-                                            classNames={{ input: "text-left" }}
-                                            autoComplete="false"
-                                            isReadOnly
-                                            value={dayjs(formData.Date).format("LL")}
-                                            startContent={<StartIcon Icon={RiCalendarLine} />}
-                                        />
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <div className="flex flex-row w-full items-center">
-                                            <div className="flex-1 font-bold">{`${calendarRange.year} ${calendarRange.month}`}</div>
-                                            <Button
-                                                isIconOnly
-                                                variant="light"
-                                                onPress={() => _calendarRange(monthDecrease)}
-                                            >
-                                                <RiArrowLeftSLine className="size-5" />
-                                            </Button>
-                                            <Button
-                                                isIconOnly
-                                                variant="light"
-                                                onPress={() => _calendarRange(monthIncrease)}
-                                            >
-                                                <RiArrowRightSLine className="size-5" />
-                                            </Button>
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <div className="flex flex-row w-full justify-around">
-                                                {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((v) => (
-                                                    <div className="text-[.8em] w-unit-10 text-center">{v}</div>
-                                                ))}
+                                <span onClick={() => _isCalendarOpen(true)}>
+                                    <Input
+                                        aria-label="Date"
+                                        label="Date"
+                                        classNames={{ input: "text-left" }}
+                                        autoComplete="false"
+                                        value={dayjs(formData.Date).format("LL")}
+                                        startContent={<StartIcon Icon={RiCalendarLine} />}
+                                    />
+                                    <Popover isOpen={isCalendarOpen} onOpenChange={(open) => _isCalendarOpen(open)}>
+                                        <PopoverTrigger>
+                                            <span></span>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <div className="flex flex-row w-full items-center">
+                                                <div className="flex-1 font-bold">{`${calendarRange.year} ${calendarRange.month}`}</div>
+                                                <Button
+                                                    isIconOnly
+                                                    variant="light"
+                                                    onPress={() => _calendarRange(monthDecrease)}
+                                                >
+                                                    <RiArrowLeftSLine className="size-5" />
+                                                </Button>
+                                                <Button
+                                                    isIconOnly
+                                                    variant="light"
+                                                    onPress={() => _calendarRange(monthIncrease)}
+                                                >
+                                                    <RiArrowRightSLine className="size-5" />
+                                                </Button>
                                             </div>
-                                            {calendarData?.map((week) => (
-                                                <div className="flex flex-row">
-                                                    {week?.map((day) => (
-                                                        <Button
-                                                            isIconOnly
-                                                            variant={
-                                                                sameMonthDate(formData.Date, day.month, day.date)
-                                                                    ? "flat"
-                                                                    : "light"
-                                                            }
-                                                            color={
-                                                                sameMonthDate(formData.Date, day.month, day.date)
-                                                                    ? "primary"
-                                                                    : "default"
-                                                            }
-                                                            onPress={() => {
-                                                                updateForm(
-                                                                    "Date",
-                                                                    dayjs([
-                                                                        calendarRange.year,
-                                                                        day.month,
-                                                                        day.date,
-                                                                    ]).format("YYYYMMDD")
-                                                                );
-                                                                _isCalendarOpen(false);
-                                                            }}
-                                                        >
-                                                            <div
-                                                                className={
-                                                                    day.month !== calendarRange.month
-                                                                        ? "opacity-50"
-                                                                        : ""
-                                                                }
-                                                            >
-                                                                {day.date}
-                                                            </div>
-                                                        </Button>
+                                            <div className="flex flex-col">
+                                                <div className="flex flex-row w-full justify-around">
+                                                    {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((v) => (
+                                                        <div className="text-[.8em] w-unit-10 text-center">{v}</div>
                                                     ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
+                                                {calendarData?.map((week) => (
+                                                    <div className="flex flex-row">
+                                                        {week?.map((day) => (
+                                                            <Button
+                                                                isIconOnly
+                                                                variant={
+                                                                    sameMonthDate(formData.Date, day.month, day.date)
+                                                                        ? "flat"
+                                                                        : "light"
+                                                                }
+                                                                color={
+                                                                    sameMonthDate(formData.Date, day.month, day.date)
+                                                                        ? "primary"
+                                                                        : "default"
+                                                                }
+                                                                onPress={() => {
+                                                                    updateForm(
+                                                                        "Date",
+                                                                        dayjs([
+                                                                            calendarRange.year,
+                                                                            day.month,
+                                                                            day.date,
+                                                                        ]).format("YYYYMMDD")
+                                                                    );
+                                                                    _isCalendarOpen(false);
+                                                                }}
+                                                            >
+                                                                <div
+                                                                    className={
+                                                                        day.month !== calendarRange.month
+                                                                            ? "opacity-50"
+                                                                            : ""
+                                                                    }
+                                                                >
+                                                                    {day.date}
+                                                                </div>
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                </span>
                                 <Autocomplete
                                     aria-label="Counterparty"
                                     label={formData.IsExpense ? "Payee" : "Payer"}

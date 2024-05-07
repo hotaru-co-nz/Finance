@@ -34,7 +34,7 @@ export default function Transactions() {
                 return (
                     <div>
                         <div>{item.Counterparty}</div>
-                        <div className="text-tiny opacity-50">{`${item.Tag}·${item.Date.format("L")}`}</div>
+                        <div className="text-tiny opacity-50">{`${item.Tag}·${dayjs(item.Date).format("L")}`}</div>
                     </div>
                 );
             case "Description":
@@ -58,14 +58,7 @@ export default function Transactions() {
                 </Button>
             </Card>
             <ScrollShadow className="h-full p-3 w-full" hideScrollBar size={10}>
-                <Table
-                    removeWrapper
-                    classNames={{ base: "h-full w-full" }}
-                    isHeaderSticky
-                    // bottomContent={
-
-                    // }
-                >
+                <Table removeWrapper classNames={{ base: "h-full w-full" }} isHeaderSticky>
                     <TableHeader
                         columns={
                             window.innerWidth < 768

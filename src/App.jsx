@@ -11,6 +11,7 @@ import ExchangeRates from "./components/pages/ExchangeRates";
 import Tags from "./components/pages/Tags";
 import Transactions from "./components/pages/Transactions";
 import Form from "./components/dialogs/index.js";
+import Counterparties from "./components/pages/Counterparties.jsx";
 
 export const AppData = createContext();
 
@@ -20,6 +21,7 @@ class PageIndex {
     static Transactions = "Transactions";
     static ExchangeRates = "ExchangeRates";
     static Tags = "Tags";
+    static Counterparties = "Counterparties";
     static Settings = "Settings";
     static Feedback = "Feedback";
 }
@@ -30,6 +32,7 @@ const PageTitle = {
     Transactions: "Transactions",
     ExchangeRates: "Exchange Rates",
     Tags: "Tags",
+    Counterparties: "Counterparties",
     Settings: "Settings",
     Feedback: "Feedback",
 };
@@ -48,7 +51,6 @@ export default function App() {
 
     const [transactionFormEntity, _transactionFormEntity] = useState({});
 
-    
     const [generalFormEntity, _generalFormEntity] = useState();
     const [generalFormConfig, _generalFormConfig] = useState({
         title: "",
@@ -73,15 +75,18 @@ export default function App() {
     const { isOpen: isMessageOpen, onOpen: onMessageOpen, onOpenChange: onMessageOpenChange } = useDisclosure();
 
     const getAppData = async () => {
-        let [respCounterparties, respExchangeRates, respTags] = await Promise.all([
+        let [respCounterparties, respExchangeRates, respTags, respTransactions] = await Promise.all([
             db.find("Counterparties", { condition: { UID: user.UID } }),
             db.find("ExchangeRates"),
             db.find("Tags", { condition: { UID: user.UID } }),
+            db.find("Transactions", { condition: { UID: user.UID } }),
         ]);
         console.log(respExchangeRates);
         _counterparties(respCounterparties.map((value) => ({ ...value, key: value.Name })));
         _exchangeRates(respExchangeRates.map((value) => ({ ...value, key: value.CurrencyCode })));
         _tags(respTags.map((value) => ({ ...value, key: value.Name })));
+        console.log(respTransactions);
+        _transactions(respTransactions.map((value) => ({ ...value, key: value._id.toString() })));
     };
 
     useEffect(() => {
@@ -153,6 +158,7 @@ export default function App() {
                         {pageId === PageIndex.Transactions && <Transactions source={exchangeRates} />}
                         {pageId === PageIndex.ExchangeRates && <ExchangeRates source={exchangeRates} />}
                         {pageId === PageIndex.Tags && <Tags source={exchangeRates} />}
+                        {pageId === PageIndex.Counterparties && <Counterparties source={exchangeRates} />}
                     </div>
                 </div>
             </div>

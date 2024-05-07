@@ -15,13 +15,13 @@ import {
 import { RiDeleteBinLine, RiEditLine, RiGitMergeLine, RiLogoutCircleLine } from "@remixicon/react";
 import { useCallback, useState } from "react";
 import useGeneralForm from "../../hooks/useGeneralForm";
-import { useTags } from "../../hooks/useTags";
+import { useCounterparties } from "../../hooks/useCounterparties";
 import Grid from "../wrappers/Grid";
 
 const TagFormEntries = { Name: { name: "Name", invalid: (n) => !n, msg: "You must provide a name!" } };
 
-export default function Tags() {
-    const tags = useTags();
+export default function Counterparties() {
+    const counterparties = useCounterparties();
 
     const form = useGeneralForm();
 
@@ -62,9 +62,9 @@ export default function Tags() {
                         if (isMerging) {
                             if (selected.size > 1) {
                                 form.open(
-                                    "Merge Tags",
+                                    "Merge Counterparties",
                                     <span>
-                                        <span>Selected tags</span>
+                                        <span>Selected counterparties</span>
                                         <span className={"inline-flex gap-1 mx-1"}>
                                             {Array.from(selected).map((value) => (
                                                 <Chip variant={"flat"}>{value}</Chip>
@@ -73,7 +73,7 @@ export default function Tags() {
                                         <span>will be merged to a new tag. Please enter a new name.</span>
                                     </span>,
                                     TagFormEntries,
-                                    (value) => tags.merge(Array.from(selected), value)
+                                    onSubmit
                                 );
                             } else {
                             }
@@ -116,7 +116,7 @@ export default function Tags() {
                     onRow={(item) => {
                         if (!(isDeleting || isMerging)) form.open("Modify Tag", "", TagFormEntries, onSubmit, item);
                     }}
-                    dataSource={tags.items}
+                    dataSource={counterparties.items}
                     renderCell={renderCell}
                 />
             </ScrollShadow>

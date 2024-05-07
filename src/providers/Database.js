@@ -48,6 +48,11 @@ export default class Database {
         return await this.useCollection(table).insertMany(data);
     }
 
+    async update(table, where, set) {
+        // .updateMany({ Tag: 'old' }, { $set: { Tag: 'new' } })
+        return await this.useCollection(table).updateMany(where, set);
+    }
+
     async import(table, data) {
         const collection = this.useCollection(table);
 

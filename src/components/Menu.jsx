@@ -24,6 +24,7 @@ class Pages {
     static Transactions = "Transactions";
     static ExchangeRates = "ExchangeRates";
     static Tags = "Tags";
+    static Counterparties = "Counterparties";
     static Settings = "Settings";
     static Feedback = "Feedback";
 }
@@ -34,6 +35,7 @@ const PageTitle = {
     Transactions: "Transactions",
     ExchangeRates: "Exchange Rates",
     Tags: "Tags",
+    Counterparties: "Counterparties",
     Settings: "Settings",
     Feedback: "Feedback",
 };
@@ -70,7 +72,8 @@ export default function Menu({ defaultSelected, onChange }) {
                 { key: Pages.Dashboard, icon: RiDashboardLine, label: PageTitle.Dashboard },
                 { key: Pages.Transactions, icon: RiBillLine, label: PageTitle.Transactions },
                 { key: Pages.ExchangeRates, icon: RiExchangeDollarLine, label: PageTitle.ExchangeRates },
-                { key: Pages.Tags, icon: RiPriceTagLine, label: PageTitle.Tags, divider: true },
+                { key: Pages.Tags, icon: RiPriceTagLine, label: PageTitle.Tags },
+                { key: Pages.Counterparties, icon: RiPriceTagLine, label: PageTitle.Counterparties, divider: true },
                 { key: Pages.Settings, icon: RiSettings3Line, label: PageTitle.Settings },
                 { key: Pages.Feedback, icon: RiFeedbackLine, label: PageTitle.Feedback },
             ].map((item) => (
