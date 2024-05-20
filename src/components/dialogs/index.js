@@ -1,5 +1,5 @@
-import General from "./General";
-import Transaction from "./Transaction";
+import General from "./src/General";
+import Transaction from "./src/Transaction";
 
 export default class Form{
     static Transaction = Transaction

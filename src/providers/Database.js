@@ -53,9 +53,12 @@ export default class Database {
         return await this.useCollection(table).updateMany(where, set);
     }
 
+    async delete(table, where) {
+        return await this.useCollection(table).deleteMany(where);
+    }
+
     async import(table, data) {
         const collection = this.useCollection(table);
-
         await collection.deleteMany({});
         await collection.insertMany(data);
     }

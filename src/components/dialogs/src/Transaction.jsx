@@ -2,7 +2,6 @@ import {
     Autocomplete,
     AutocompleteItem,
     Button,
-    DatePicker,
     Input,
     Modal,
     ModalBody,
@@ -19,7 +18,6 @@ import {
     Tabs,
     Textarea,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
 import {
     RiArrowLeftSLine,
     RiArrowRightSLine,
@@ -28,37 +26,33 @@ import {
     RiMoneyDollarCircleLine,
     RiPriceTagLine,
 } from "@remixicon/react";
-import dayjs, { getCalendar, getCurrentMonth, monthDecrease, monthIncrease, sameMonthDate } from "../../lib/dayjs";
-import { useTransactions } from "../../hooks/useTransactions";
-import { inputStyle, modalStyle, scrollShadowProps } from "../style.js";
-import { useExchangeRates } from "../../hooks/useExchangeRates.js";
-import { useTags } from "../../hooks/useTags.js";
-import { useCounterparties } from "../../hooks/useCounterparties.js";
+import { useEffect, useState } from "react";
+import { useCounterparties } from "../../../hooks/useCounterparties.js";
+import { useExchangeRates } from "../../../hooks/useExchangeRates.js";
+import { useTags } from "../../../hooks/useTags.js";
+import { useTransactions } from "../../../hooks/useTransactions.js";
+import dayjs, { getCalendar, getCurrentMonth, monthDecrease, monthIncrease, sameMonthDate } from "../../../lib/dayjs.js";
+import { inputStyle, modalStyle, scrollShadowProps } from "../../style.js";
 
-export default function Transaction({ isOpen, onOpenChange, formEntity }) {
+export default function Transaction({ isOpen, onOpenChange }) {
     const counterparties = useCounterparties();
-    const tags = useTags();
-    const transactions = useTransactions();
     const exchangeRates = useExchangeRates();
-
-    const [formData, _formData] = useState(transactions.new());
-    const [formError, _formError] = useState({});
+    const tags = useTags();
+    const { item, _item, error, _error } = useTransactions();
 
     const [calendarRange, _calendarRange] = useState(getCurrentMonth());
     const [calendarData, _calendarData] = useState();
     const [isCalendarOpen, _isCalendarOpen] = useState(false);
 
-    const updateForm = (key, value) => _formData((prevState) => ({ ...prevState, [key]: value }));
-
-    const updateError = (key, value) => _formError((prevState) => ({ ...prevState, [key]: value }));
-
+    const updateForm = (key, value) => _item((prevState) => ({ ...prevState, [key]: value }));
+    const updateError = (key, value) => _error((prevState) => ({ ...prevState, [key]: value }));
     const validateForm = () => {
-        _formError({});
+        _error({});
         let i = 0;
-        if (!formData.Counterparty)
-            updateError("Counterparty", `${formData.IsExpense ? "Payee" : "Payer"} cannot be empty!`, i++);
-        if (!formData.Amount) updateError("Amount", "Amount cannot be empty!", i++);
-        if (Number(formData.Amount) < 0) updateError("Amount", "Amount cannot be negative!", i++);
+        if (!item.Counterparty)
+            updateError("Counterparty", `${item.IsExpense ? "Payee" : "Payer"} cannot be empty!`, i++);
+        if (!item.Amount) updateError("Amount", "Amount cannot be empty!", i++);
+        if (Number(item.Amount) < 0) updateError("Amount", "Amount cannot be negative!", i++);
         if (i > 0) return false;
         return true;
     };
@@ -72,10 +66,6 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
     useEffect(() => {
         _calendarData(getCalendar(calendarRange));
     }, [calendarRange]);
-
-    useEffect(() => {
-        // if (formEntity)
-    }, [formEntity]);
 
     return (
         <Modal
@@ -99,7 +89,7 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                         label="Date"
                                         classNames={{ input: "text-left" }}
                                         autoComplete="false"
-                                        value={dayjs(formData.Date).format("LL")}
+                                        value={dayjs(item.Date).format("LL")}
                                         startContent={<StartIcon Icon={RiCalendarLine} />}
                                     />
                                     <Popover isOpen={isCalendarOpen} onOpenChange={(open) => _isCalendarOpen(open)}>
@@ -127,21 +117,24 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                             <div className="flex flex-col">
                                                 <div className="flex flex-row w-full justify-around">
                                                     {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((v) => (
-                                                        <div className="text-[.8em] w-unit-10 text-center">{v}</div>
+                                                        <div className="text-[.8em] w-unit-10 text-center" key={v}>
+                                                            {v}
+                                                        </div>
                                                     ))}
                                                 </div>
                                                 {calendarData?.map((week) => (
                                                     <div className="flex flex-row">
                                                         {week?.map((day) => (
                                                             <Button
+                                                                key={`${day.month}-${day.date}`}
                                                                 isIconOnly
                                                                 variant={
-                                                                    sameMonthDate(formData.Date, day.month, day.date)
+                                                                    sameMonthDate(item.Date, day.month, day.date)
                                                                         ? "flat"
                                                                         : "light"
                                                                 }
                                                                 color={
-                                                                    sameMonthDate(formData.Date, day.month, day.date)
+                                                                    sameMonthDate(item.Date, day.month, day.date)
                                                                         ? "primary"
                                                                         : "default"
                                                                 }
@@ -176,13 +169,13 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                 </span>
                                 <Autocomplete
                                     aria-label="Counterparty"
-                                    label={formData.IsExpense ? "Payee" : "Payer"}
+                                    label={item.IsExpense ? "Payee" : "Payer"}
                                     autoComplete="false"
                                     allowsCustomValue
                                     startContent={<StartIcon Icon={RiGroupLine} />}
-                                    inputValue={formData.Counterparty}
+                                    inputValue={item.Counterparty}
                                     onInputChange={(value) => updateForm("Counterparty", value)}
-                                    description={formError.Counterparty}
+                                    description={error.Counterparty}
                                 >
                                     {counterparties.items.map((value) => (
                                         <AutocompleteItem key={value.key}>{value.Name}</AutocompleteItem>
@@ -194,9 +187,9 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                     autoComplete="false"
                                     allowsCustomValue
                                     startContent={<StartIcon Icon={RiPriceTagLine} />}
-                                    inputValue={formData.Tag}
+                                    inputValue={item.Tag}
                                     onInputChange={(value) => updateForm("Tag", value)}
-                                    description={formError.Tag}
+                                    description={error.Tag}
                                 >
                                     {tags.items.map((value) => (
                                         <AutocompleteItem key={value.key}>{value.Name}</AutocompleteItem>
@@ -206,16 +199,16 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                     aria-label="Amount"
                                     label="Amount"
                                     type="number"
-                                    value={formData.Amount}
+                                    value={item.Amount}
                                     autoComplete="false"
                                     onValueChange={(value) => updateForm("Amount", value)}
                                     startContent={<StartIcon Icon={RiMoneyDollarCircleLine} />}
-                                    description={formError.Amount}
+                                    description={error.Amount}
                                 />
                                 <div className="flex flex-row gap-3">
                                     <Tabs
                                         aria-label="Options"
-                                        selectedKey={formData.IsExpense ? "e" : "i"}
+                                        selectedKey={item.IsExpense ? "e" : "i"}
                                         onSelectionChange={(value) => updateForm("IsExpense", value === "e")}
                                     >
                                         <Tab key={"e"} title="Expense"></Tab>
@@ -224,7 +217,7 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                     <Select
                                         aria-label="ExchangeRates"
                                         autoComplete="false"
-                                        selectedKeys={new Set([formData.Currency])}
+                                        selectedKeys={new Set([item.Currency])}
                                         onSelectionChange={(values) =>
                                             updateForm("Currency", values.values().next().value)
                                         }
@@ -239,7 +232,7 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                 <Textarea
                                     label={"Description"}
                                     placeholder=" "
-                                    value={formData.Description}
+                                    value={item.Description}
                                     onValueChange={(value) => updateForm("Description", value)}
                                 />
                             </ModalBody>
@@ -253,7 +246,8 @@ export default function Transaction({ isOpen, onOpenChange, formEntity }) {
                                 variant="flat"
                                 onPress={async () => {
                                     if (validateForm()) {
-                                        await transactions.insert(formData);
+                                        console.log(item);
+                                        // await transactions.insert(item);
                                         onClose();
                                     }
                                 }}

@@ -33,7 +33,18 @@ export default function Tags() {
         return item[columnKey];
     });
 
-    const onSubmit = (tag) => {};
+    const renameTag = async (newTag, oldTag) => {
+        await tags.rename(oldTag.Name, newTag.Name);
+
+        form.close(true);
+    };
+
+    const mergeTags = async (tag) => {
+        await tags.merge(Array.from(selected), tag.Name);
+        form.close(true);
+        _selected(new Set());
+        _isMerging(false);
+    };
 
     return (
         <div className="flex w-full h-full flex-col">
@@ -73,7 +84,7 @@ export default function Tags() {
                                         <span>will be merged to a new tag. Please enter a new name.</span>
                                     </span>,
                                     TagFormEntries,
-                                    (value) => tags.merge(Array.from(selected), value)
+                                    mergeTags
                                 );
                             } else {
                             }
@@ -114,7 +125,7 @@ export default function Tags() {
                         { key: "Count", label: "Count" },
                     ]}
                     onRow={(item) => {
-                        if (!(isDeleting || isMerging)) form.open("Modify Tag", "", TagFormEntries, onSubmit, item);
+                        if (!(isDeleting || isMerging)) form.open("Modify Tag", "", TagFormEntries, renameTag, item);
                     }}
                     dataSource={tags.items}
                     renderCell={renderCell}

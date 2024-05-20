@@ -1,19 +1,19 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import "./App.css";
-import React from "react";
-import Database from "./providers/Database";
 
-import Authenticator from "./components/dialogs/Authenticator";
-import { Button, Modal, ModalBody, ModalContent, useDisclosure } from "@nextui-org/react";
+import { Button, useDisclosure } from "@nextui-org/react";
 import { RiAddLine, RiMenuFoldLine, RiMenuUnfoldLine } from "@remixicon/react";
 import Menu from "./components/Menu";
+import Authenticator from "./components/dialogs/src/Authenticator.jsx";
+import Form from "./components/dialogs/index.js";
+import Counterparties from "./components/pages/Counterparties.jsx";
 import ExchangeRates from "./components/pages/ExchangeRates";
 import Tags from "./components/pages/Tags";
 import Transactions from "./components/pages/Transactions";
-import Form from "./components/dialogs/index.js";
-import Counterparties from "./components/pages/Counterparties.jsx";
-
-export const AppData = createContext();
+import useApp from "./hooks/useApp.js";
+import { useCounterparties } from "./hooks/useCounterparties.js";
+import { useTags } from "./hooks/useTags.js";
+import { useTransactions } from "./hooks/useTransactions.js";
 
 class PageIndex {
     static Account = "Account";
@@ -37,19 +37,21 @@ const PageTitle = {
     Feedback: "Feedback",
 };
 export default function App() {
-    const [db] = useState(new Database());
-    const [user, _user] = useState({});
     const [hideSidebar, _hideSidebar] = useState(window.innerWidth < 768);
     const [pageId, _pageId] = useState(PageIndex.Dashboard);
 
     const [authenticated, _authenticated] = useState(false);
 
-    const [counterparties, _counterparties] = useState([]);
-    const [exchangeRates, _exchangeRates] = useState([]);
-    const [tags, _tags] = useState([]);
-    const [transactions, _transactions] = useState([]);
-
-    const [transactionFormEntity, _transactionFormEntity] = useState({});
+    const { db, user, _user, exchangeRates, _exchangeRates } = useApp();
+    const { items: counterparties, _items: _counterparties } = useCounterparties();
+    const { items: tags, _items: _tags } = useTags();
+    const {
+        items: transactions,
+        _items: _transactions,
+        opem: onTransactionFormOpen,
+        isOpen: isTransactionFormOpen,
+        onOpenChange: onTransactionFormOpenChange,
+    } = useTransactions();
 
     const [generalFormEntity, _generalFormEntity] = useState();
     const [generalFormConfig, _generalFormConfig] = useState({
@@ -58,21 +60,15 @@ export default function App() {
         entries: { Name: { invalid: (n) => !n, msg: "You must provide a name!" } },
         onSubmit: console.log,
     });
+
     const {
         isOpen: isGeneralFormOpen,
         onOpen: onGeneralFormOpen,
+        onClose: onGeneralFormClose,
         onOpenChange: onGeneralFormOpenChange,
     } = useDisclosure();
     const [onGeneralFormValidate, _onGeneralFormValidate] = useState(() => {});
     const [onGeneralFormSubmit, _onGeneralFormSubmit] = useState(() => {});
-
-    const {
-        isOpen: isTransactionFormOpen,
-        onOpen: onTransactionFormOpen,
-        onOpenChange: onTransactionFormOpenChange,
-    } = useDisclosure();
-
-    const { isOpen: isMessageOpen, onOpen: onMessageOpen, onOpenChange: onMessageOpenChange } = useDisclosure();
 
     const getAppData = async () => {
         let [respCounterparties, respExchangeRates, respTags, respTransactions] = await Promise.all([
@@ -81,11 +77,9 @@ export default function App() {
             db.find("Tags", { condition: { UID: user.UID } }),
             db.find("Transactions", { condition: { UID: user.UID } }),
         ]);
-        console.log(respExchangeRates);
         _counterparties(respCounterparties.map((value) => ({ ...value, key: value.Name })));
         _exchangeRates(respExchangeRates.map((value) => ({ ...value, key: value.CurrencyCode })));
         _tags(respTags.map((value) => ({ ...value, key: value.Name })));
-        console.log(respTransactions);
         _transactions(respTransactions.map((value) => ({ ...value, key: value._id.toString() })));
     };
 
@@ -96,39 +90,7 @@ export default function App() {
     }, [authenticated]);
 
     return (
-        <AppData.Provider
-            value={{
-                db,
-                user,
-                _user,
-                counterparties,
-                _counterparties,
-                exchangeRates,
-                _exchangeRates,
-                tags,
-                _tags,
-                transactions,
-                _transactions,
-                transactionFormEntity,
-                _transactionFormEntity,
-                isTransactionFormOpen,
-                onTransactionFormOpen,
-                onTransactionFormOpenChange,
-
-                generalFormConfig,
-                _generalFormConfig,
-                isGeneralFormOpen,
-                onGeneralFormOpen,
-                onGeneralFormOpenChange,
-                generalFormEntity,
-                _generalFormEntity,
-                onGeneralFormValidate,
-                _onGeneralFormValidate,
-                onGeneralFormSubmit,
-                _onGeneralFormSubmit,
-                onMessageOpenChange,
-            }}
-        >
+        <>
             <Authenticator _isAuthenticated={_authenticated} />
             <div className="flex flex-col w-screen h-screen">
                 <div className="px-3 flex flex-row items-center h-14 border-b-1 gap-3">
@@ -175,7 +137,7 @@ export default function App() {
                 <RiAddLine className="size-5" />
             </Button>
             <Form.Transaction isOpen={isTransactionFormOpen} onOpenChange={onTransactionFormOpenChange} />
-            <Form.General
+            {/* <Form.General
                 title={generalFormConfig.title}
                 description={generalFormConfig.description}
                 entries={generalFormConfig.entries}
@@ -183,8 +145,8 @@ export default function App() {
                 onOpenChange={onGeneralFormOpenChange}
                 onSubmit={generalFormConfig.onSubmit}
                 formEntity={generalFormEntity}
-            />
-            <Modal isOpen={isMessageOpen} onOpenChange={onMessageOpenChange} backdrop={"transparent"} hideCloseButton>
+            /> */}
+            {/* <Modal isOpen={isMessageOpen} onOpenChange={onMessageOpenChange} backdrop={"transparent"} hideCloseButton>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -196,19 +158,9 @@ export default function App() {
                         </>
                     )}
                 </ModalContent>
-            </Modal>
-        </AppData.Provider>
+            </Modal> */}
+        </>
     );
-}
-
-export function useAppData() {
-    const app = useContext(AppData);
-    return app;
-}
-
-export function useDB() {
-    const { db } = useContext(AppData);
-    return db;
 }
 
 function AutoExecute({ func, delay = 3000 }) {

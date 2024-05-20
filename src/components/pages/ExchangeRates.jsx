@@ -12,10 +12,10 @@ import {
 } from "@nextui-org/react";
 import { RiEdit2Line, RiRefreshLine } from "@remixicon/react";
 import { getExchangeRates } from "../../providers/ExchangeRate";
-import { AppData } from "../../App";
 import { useContext } from "react";
 import { useExchangeRates } from "../../hooks/useExchangeRates";
 import Grid from "../wrappers/Grid";
+import { AppData } from "../../contexts/src/App";
 
 export default function ExchangeRates() {
     const { db } = useContext(AppData);
@@ -61,43 +61,6 @@ export default function ExchangeRates() {
                     ]}
                     dataSource={exchangeRates.items}
                 />
-
-                {/* <Table
-                    removeWrapper
-                    classNames={{ base: "h-full w-full",tbody:"divide-y",thead:"before:bg-[white] before:w-full before:block before:absolute before:h-[20px] before:-top-4 before:z-[-1]" }}
-                    isHeaderSticky
-                    // bottomContent={
-
-                    // }
-                >
-                    <TableHeader
-                        columns={
-                            window.innerWidth < 768
-                                ? [
-                                      { key: "CurrencyCode", label: "Currency Code" },
-                                      { key: "CurrencyRate", label: "Exchange Rate" },
-                                  ]
-                                : [
-                                      { key: "CurrencyName", label: "Currency Name" },
-                                      { key: "CurrencyCode", label: "Currency Code" },
-                                      { key: "CurrencyRate", label: "Exchange Rate" },
-                                  ]
-                        }
-                    >
-                        {(column) => (
-                            <TableColumn key={column.key} allowsSorting>
-                                {column.label}
-                            </TableColumn>
-                        )}
-                    </TableHeader>
-                    <TableBody items={exchangeRates.items}>
-                        {(item) => (
-                            <TableRow key={item.key}>
-                                {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table> */}
             </ScrollShadow>
         </div>
     );

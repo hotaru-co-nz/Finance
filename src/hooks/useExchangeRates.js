@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useAppData, useDB } from "../App";
-import dayjs from "../lib/dayjs";
+import { useContext } from "react";
+import { AppData } from "./../contexts/src/App";
 
 export function useExchangeRates() {
-    const app = useAppData();
-    const db = useDB();
+    const { db, user, _user, exchangeRates, _exchangeRates } = useContext(AppData);
 
     return {
-        items: app.exchangeRates,
+        items: exchangeRates,
+        _items: _exchangeRates,
     };
 }

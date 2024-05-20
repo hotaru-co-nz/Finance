@@ -15,10 +15,10 @@ import {
 import { RiDeleteBinLine, RiEditLine, RiGitMergeLine, RiLogoutCircleLine } from "@remixicon/react";
 import { useCallback, useState } from "react";
 import useGeneralForm from "../../hooks/useGeneralForm";
-import { useCounterparties } from "../../hooks/useCounterparties";
 import Grid from "../wrappers/Grid";
+import { useCounterparties } from './../../hooks/useCounterparties';
 
-const TagFormEntries = { Name: { name: "Name", invalid: (n) => !n, msg: "You must provide a name!" } };
+const CounterpartyFormEntries = { Name: { name: "Name", invalid: (n) => !n, msg: "You must provide a name!" } };
 
 export default function Counterparties() {
     const counterparties = useCounterparties();
@@ -33,7 +33,18 @@ export default function Counterparties() {
         return item[columnKey];
     });
 
-    const onSubmit = (tag) => {};
+    const renameCounterparty = async (newCounterparty, oldCounterparty) => {
+        await counterparties.rename(oldCounterparty.Name, newCounterparty.Name);
+
+        form.close(true);
+    };
+
+    const mergeCounterparties = async (tag) => {
+        await counterparties.merge(Array.from(selected), tag.Name);
+        form.close(true);
+        _selected(new Set());
+        _isMerging(false);
+    };
 
     return (
         <div className="flex w-full h-full flex-col">
@@ -72,8 +83,8 @@ export default function Counterparties() {
                                         </span>
                                         <span>will be merged to a new tag. Please enter a new name.</span>
                                     </span>,
-                                    TagFormEntries,
-                                    onSubmit
+                                    CounterpartyFormEntries,
+                                    mergeCounterparties
                                 );
                             } else {
                             }
@@ -105,16 +116,17 @@ export default function Counterparties() {
                     onSelectionChange={_selected}
                     enableSelection={isMerging || isDeleting}
                     columns={[
-                        { key: "Name", label: "Tag Name" },
+                        { key: "Name", label: "Counterparty Name" },
                         { key: "Percentage", label: "Percentage" },
                         { key: "Count", label: "Count" },
                     ]}
                     cols={[
-                        { key: "Name", label: "Tag Name" },
+                        { key: "Name", label: "Counterparty Name" },
                         { key: "Count", label: "Count" },
                     ]}
                     onRow={(item) => {
-                        if (!(isDeleting || isMerging)) form.open("Modify Tag", "", TagFormEntries, onSubmit, item);
+                        if (!(isDeleting || isMerging))
+                            form.open("Modify Counterparty", "", CounterpartyFormEntries, renameCounterparty, item);
                     }}
                     dataSource={counterparties.items}
                     renderCell={renderCell}

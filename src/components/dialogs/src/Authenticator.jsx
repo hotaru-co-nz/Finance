@@ -9,7 +9,7 @@ import {
     Input,
 } from "@nextui-org/react";
 import { useContext, useEffect, useState } from "react";
-import { AppData } from "../../App";
+import { AppData } from "./../../../contexts/src/App";
 
 export default function Authenticator({ _isAuthenticated }) {
     const { db, _user } = useContext(AppData);

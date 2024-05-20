@@ -9,7 +9,7 @@ import {
     ScrollShadow,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { modalStyle, scrollShadowProps } from "../style";
+import { modalStyle, scrollShadowProps } from "../../style";
 
 function newFormData(entries) {
     return Object.fromEntries(Object.keys(entries).map((value) => [value, undefined]));
@@ -38,7 +38,7 @@ export default function General({ title, description, entries = [], isOpen, onOp
     };
 
     const submitForm = () => {
-        if (validateForm()) onSubmit(formData);
+        if (validateForm()) onSubmit(formData, formEntity);
     };
 
     useEffect(() => {
