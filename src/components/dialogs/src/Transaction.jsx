@@ -31,14 +31,20 @@ import { useCounterparties } from "../../../hooks/useCounterparties.js";
 import { useExchangeRates } from "../../../hooks/useExchangeRates.js";
 import { useTags } from "../../../hooks/useTags.js";
 import { useTransactions } from "../../../hooks/useTransactions.js";
-import dayjs, { getCalendar, getCurrentMonth, monthDecrease, monthIncrease, sameMonthDate } from "../../../lib/dayjs.js";
+import dayjs, {
+    getCalendar,
+    getCurrentMonth,
+    monthDecrease,
+    monthIncrease,
+    sameMonthDate,
+} from "../../../lib/dayjs.js";
 import { inputStyle, modalStyle, scrollShadowProps } from "../../style.js";
 
 export default function Transaction({ isOpen, onOpenChange }) {
     const counterparties = useCounterparties();
     const exchangeRates = useExchangeRates();
     const tags = useTags();
-    const { item, _item, error, _error } = useTransactions();
+    const { item, _item, error, _error, insert } = useTransactions();
 
     const [calendarRange, _calendarRange] = useState(getCurrentMonth());
     const [calendarData, _calendarData] = useState();
@@ -246,8 +252,7 @@ export default function Transaction({ isOpen, onOpenChange }) {
                                 variant="flat"
                                 onPress={async () => {
                                     if (validateForm()) {
-                                        console.log(item);
-                                        // await transactions.insert(item);
+                                        await insert(item);
                                         onClose();
                                     }
                                 }}
